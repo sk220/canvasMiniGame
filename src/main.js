@@ -3,25 +3,45 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 let spacePressed = false;
-let gameover = false;
+let gameoverFlg = false;
 
 let frame = 0;
 let score = 0; 
-let gamespeed = 2;
+let currentLevel = 1;
+let levels = [
+  { level: 0, 
+    gamespeed: 2,
+    obstacleCount: 10,
+  }, 
+  { level: 1, 
+    gamespeed: 5,
+    obstacleCount: 10,
+  }, 
+  { level: 2, 
+    gamespeed: 5,
+    obstacleCount: 15,
+  }, 
+  { level: 3, 
+    gamespeed: 7,
+    obstacleCount: 20,
+  }, 
+];
 
 const startButton = document.querySelector('#start');
 startButton.addEventListener('click', start);
 
+//choose level
+const level = document.querySelectorAll('.level');
+level[0].addEventListener('change', (event) => currentLevel = event.target.value);
+
 function start() {
   //reset obstacles if we loose 
-  if (gameover) {
+  if (gameoverFlg) {
     obstacleArray.length = 0;
     score = 0;
   } 
   animate();
-  gameover = false;
-  startButton.innerText = 'Game started';
-  startButton.toggleAttribute('disabled');
+  gameover(false, 'Game started');
 }
 
 // game 
@@ -35,12 +55,15 @@ function animate() {
     ball.draw();
     handleExplosion();
     if (handleExplosion()) {
-        gameover = true;
-        startButton.innerText = 'Start over';
-        startButton.toggleAttribute('disabled');
-        return;
+      gameover(true, 'Restart');  
+      return;
     }
-    countScore();
+    handleScore();
+    if(handleScore()) {
+      passLevel();
+      return
+    }
+
     requestAnimationFrame(animate);
     frame++;
 }
@@ -59,15 +82,32 @@ window.addEventListener('keyup', function (event) {
 });
 
 // score
-function countScore(){
+function handleScore(){
   for (const obstacle of obstacleArray) {
-    if (ball.x < obstacle.x + obstacle.width &&
-        ball.x + ball.radius > obstacle.x &&
+    if ( ball.x > obstacle.x + obstacle.width &&
         !obstacle.counted) {
           obstacle.counted = true;
           score++;
     }
   }
+  if (score >= levels[currentLevel].obstacleCount) {
+    return true;
+  }
+}
+
+function passLevel(){
+  ctx.font = '32px Roboto';
+  ctx.fillStyle = 'mintcream';
+  ctx.textAlign = 'center';
+  ctx.fillText('Level ' + `${currentLevel}` + ' done!', canvas.width/2, canvas.height/2);
+  gameover(true, 'Restart');
+}
+
+function gameover(boolean, buttonText){
+  gameoverFlg = boolean;
+  startButton.innerText = buttonText;
+  startButton.toggleAttribute('disabled');
+  level[0].toggleAttribute('disabled');
 }
 
 // meet obstacle

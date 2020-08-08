@@ -15,7 +15,7 @@ class Obstacle {
   }
 
   update(){
-    this.x -= gamespeed; 
+    this.x -= levels[currentLevel].gamespeed; 
     this.draw();
   }
 }
