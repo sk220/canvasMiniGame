@@ -7,7 +7,7 @@ class Obstacle {
     this.width = Math.random()*40 + 10;
     this.height = 20;
     this.color = 'hsl(' + Math.floor(Math.random()* 359) + ', 50%, 50%)';
-
+    this.counted = false;
   }
   draw(){
     ctx.fillStyle = this.color;
@@ -16,12 +16,11 @@ class Obstacle {
 
   update(){
     this.x -= gamespeed; 
-      this.draw();
+    this.draw();
   }
 }
 
 function handleObstacles() {
-  freq = Math.floor(Math.random()*50+50);
   if (frame%50===0) {
     obstacleArray.unshift(new Obstacle());
   }
